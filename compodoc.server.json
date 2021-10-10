@@ -1,0 +1,6 @@
+{
+    "port": 9911,
+    "name": "TP_CI SERVER",
+    "output": "docs",
+    "tsconfig": "./tsconfig.json"
+  }
