@@ -3,13 +3,20 @@ import * as z from 'zod';
 import { config as parseConfig } from 'dotenv';
 
 const schema = z.object({
-    NODE_ENV: z.enum(["development", "production", "test"]).default('development'),
-    LOG_LEVEL: z.enum(['error', 'warning', 'info', 'debug', 'silly']).default('debug'),
-    DATABASE_URL: z.string().nonempty(),
-    LOG_SQL_REQUEST: z.string().transform(value => value === 'true').default('false'),
-})
+  NODE_ENV: z
+    .enum(['development', 'production', 'test'])
+    .default('development'),
+  LOG_LEVEL: z
+    .enum(['error', 'warning', 'info', 'debug', 'silly'])
+    .default('debug'),
+  DATABASE_URL: z.string().nonempty(),
+  LOG_SQL_REQUEST: z
+    .string()
+    .transform((value) => value === 'true')
+    .default('false'),
+});
 
-type EnvConfig = z.infer<typeof schema>
+type EnvConfig = z.infer<typeof schema>;
 
 @Injectable()
 export class ConfigService {
@@ -28,7 +35,6 @@ export class ConfigService {
    * including the applied default values.
    */
   private validateInput(envConfig: any): EnvConfig {
-
     const result = schema.safeParse(envConfig);
 
     if (result.success === false) {
@@ -52,5 +58,4 @@ export class ConfigService {
   get loggerLevel(): string {
     return this.envConfig.LOG_LEVEL;
   }
-
 }
