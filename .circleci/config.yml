@@ -57,7 +57,7 @@ jobs:
       - restore_cache:
           key: dependencies-{{ checksum "package.json" }}-v1
       - run:
-          command: yarn test:ci
+          command: yarn test
           environment:
             DATABASE_URL: postgres://psqluer:psqlpassword@localhost:5432/psqluer
   back-test-e2e:
