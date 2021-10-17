@@ -14,6 +14,9 @@ const schema = z.object({
     .string()
     .transform((value) => value === 'true')
     .default('false'),
+  PORT: z.string()
+    .transform(value => parseInt(value))
+    .default('3000'),
 });
 
 type EnvConfig = z.infer<typeof schema>;
@@ -57,5 +60,9 @@ export class ConfigService {
 
   get loggerLevel(): string {
     return this.envConfig.LOG_LEVEL;
+  }
+
+  get port(): number {
+    return this.envConfig.PORT;
   }
 }
