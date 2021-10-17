@@ -1,8 +1,8 @@
 version: 2
 jobs:
-  build:
+  build: &shared-config
     docker:
-      - image: circleci/node:dubnium-browsers
+      - image: circleci/node:lts-fermium
     working_directory: ~/repo
     steps:
       - checkout
@@ -11,15 +11,13 @@ jobs:
             - dependencies-{{ checksum "package.json" }}-v1
             # fallback to using the latest cache if no exact match is found
             - dependencies-
-      - run: yarn global add node-gyp && yarn install
+      - run: yarn install
       - save_cache:
           paths:
             - node_modules
           key: dependencies-{{ checksum "package.json" }}-v1
   lint:
-    docker:
-      - image: circleci/node:dubnium-browsers
-    working_directory: ~/repo
+    <<: *shared-config
     steps:
       - checkout
       - restore_cache:
@@ -27,9 +25,7 @@ jobs:
       - run: yarn lint
       - run: yarn format:check
   server-doc-build:
-    docker:
-      - image: circleci/node:dubnium-browsers
-    working_directory: ~/repo
+    <<: *shared-config
     steps:
       - checkout
       - restore_cache:
@@ -46,8 +42,7 @@ jobs:
           paths:
             - server-doc
   server-doc-deploy:
-    docker:
-      - image: circleci/node:dubnium-browsers
+    <<: *shared-config
     working_directory: ~/deploy-doc-server
     steps:
       - attach_workspace:
@@ -56,9 +51,7 @@ jobs:
           name: Deploy app
           command: echo todo && false
   back-test-unit:
-    docker:
-      - image: circleci/node:dubnium-browsers
-    working_directory: ~/repo
+    <<: *shared-config
     steps:
       - checkout
       - restore_cache:
@@ -67,14 +60,9 @@ jobs:
           command: yarn test:ci
           environment:
             DATABASE_URL: postgres://psqluer:psqlpassword@localhost:5432/psqluer
-            JWT_SECRET: aaaa
-            API_PORT: 3000
-            API_HOST: localhost
-            API_PROTOCOL: http
-      - run: yarn add codecov && yarn codecov
   back-test-e2e:
     docker:
-      - image: circleci/node:dubnium-browsers
+      - image: circleci/node:lts-fermium
       - image: circleci/postgres:9.6.5
         environment:
           POSTGRES_DB: psqluer
@@ -89,10 +77,6 @@ jobs:
           command: yarn test:e2e
           environment:
             DATABASE_URL: postgres://psqluer:psqlpassword@localhost:5432/psqluer
-            JWT_SECRET: aaaa
-            API_PORT: 3000
-            API_HOST: localhost
-            API_PROTOCOL: http
 
   docker-build-and-push:
     working_directory: /dockerapp
@@ -104,15 +88,17 @@ jobs:
       - run:
           name: Build application Docker image
           command: |
-            docker build --cache-from=app -t app .
+            # docker build --cache-from=app -t app .
+            echo true
       - deploy:
           name: Publish application to docker hub
           command: |
-            docker login -e $DOCKER_HUB_EMAIL -u $DOCKER_HUB_USER_ID -p $DOCKER_HUB_PWD
-            docker tag app $DOCKER_HUB_USER_ID/my-awesome-ci-expr:$CIRCLE_BUILD_NUM
-            docker tag app $DOCKER_HUB_USER_ID/my-awesome-ci-expr:latest
-            docker push $DOCKER_HUB_USER_ID/my-awesome-ci-expr:$CIRCLE_BUILD_NUM
-            docker push $DOCKER_HUB_USER_ID/my-awesome-ci-expr:latest
+            # docker login -e $DOCKER_HUB_EMAIL -u $DOCKER_HUB_USER_ID -p $DOCKER_HUB_PWD
+            # docker tag app $DOCKER_HUB_USER_ID/my-awesome-ci-expr:$CIRCLE_BUILD_NUM
+            # docker tag app $DOCKER_HUB_USER_ID/my-awesome-ci-expr:latest
+            # docker push $DOCKER_HUB_USER_ID/my-awesome-ci-expr:$CIRCLE_BUILD_NUM
+            # docker push $DOCKER_HUB_USER_ID/my-awesome-ci-expr:latest
+            echo true
 
   back-deploy-heroku:
     docker:
