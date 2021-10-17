@@ -1,4 +1,4 @@
-<h1 align="center">Welcome to TP on CI and CircleCI 👋</h1>
+<h1 align="center">Welcome to TP on CD and CircleCI 👋</h1>
 
 
 You can find the codelabs here on iCampus.
